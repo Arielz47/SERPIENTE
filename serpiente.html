@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Juego de la Serpiente - Taller</title>
+   <link rel="stylesheet" href="serpiente.css">
+</head>
+<body>
+  <main class="contenedor-juego">
+    <h1>🐍 Juego de la Serpiente</h1>
+    <p class="descripcion">
+      Cada línea es un paso: construye el tablero donde comenzará la aventura.
+    </p>
+
+    <section class="panel-info">
+      <div class="tarjeta-info">
+        <span>Puntaje</span>
+        <strong id="puntaje">0</strong>
+      </div>
+      <div class="tarjeta-info">
+        <span>Estado</span>
+        <strong id="estado">Tablero listo</strong>
+      </div>
+    </section>
+
+    <canvas id="canvasJuego" width="600" height="600" aria-label="Tablero de 600 por 600 píxeles, con 24 filas y 24 columnas">Su navegador no admite canvas.</canvas>
+
+    <section class="controles">
+      <button class="vacio">-</button>
+      <button disabled title="Disponible en una siguiente parte del taller">⬆️</button>
+      <button class="vacio">-</button>
+
+      <button disabled title="Disponible en una siguiente parte del taller">⬅️</button>
+      <button disabled title="Disponible en una siguiente parte del taller">⏸️</button>
+      <button disabled title="Disponible en una siguiente parte del taller">➡️</button>
+
+      <button class="vacio">-</button>
+      <button disabled title="Disponible en una siguiente parte del taller">⬇️</button>
+      <button class="vacio">-</button>
+    </section>
+
+    <section class="acciones">
+      <button disabled title="Disponible en una siguiente parte del taller">Iniciar</button>
+      <button class="secundario" disabled title="Disponible en una siguiente parte del taller">Reiniciar</button>
+    </section>
+
+    <p id="mensaje" class="mensaje">Taller: tablero de 600 × 600 px · celdas de 25 px · 24 filas y 24 columnas.</p>
+  </main>
+
+  <script src="serpiente.js"></script>
+</body>
+</html>
