@@ -1,16 +1,19 @@
-// Canvas: sus atributos HTML definen las coordenadas de dibujo.
 const canvas = document.getElementById("canvasJuego");
 const ctx = canvas.getContext("2d");
 const TAMANIO_CELDA = 25;
-
-// Cada objeto representa una celda del cuerpo. El índice 0 es la cabeza.
 const serpiente = [];
-let colorParte = "#ef4444";
 const COLOR_CABEZA = "#facc15";
 const COLOR_CUERPO = "#ef4444";
-
-// Se muestra al cargar el ejercicio final con cabeza amarilla y cuerpo rojo.
-seleccionarEjercicio("final");
+const COLOR_COMIDA = "#60a5fa";
+let colorParte = COLOR_CUERPO;
+let intervaloSerpiente = null;
+let direccionActual = "derecha";
+let direccionUltimoMovimiento = "derecha";
+let cambioPendiente = false;
+let comida = null;
+let puntaje = 0;
+let terminado = false;
+const TIEMPO_MOVIMIENTO = 1000;
 
 function limpiarCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -39,6 +42,7 @@ function dibujarTablero() {
 function dibujarTodo() {
   limpiarCanvas();
   dibujarTablero();
+  pintarComida();
   pintarSerpiente();
 }
 
@@ -59,47 +63,172 @@ function pintarSerpiente() {
   }
 }
 
-function seleccionarEjercicio(ejercicio) {
-  const ultimaColumna = Math.floor(canvas.width / TAMANIO_CELDA) - 1;
-  const ultimaFila = Math.floor(canvas.height / TAMANIO_CELDA) - 1;
-  let partes;
-  let mensaje;
-  switch (ejercicio) {
-    case "pruebas":
-      partes = [
-        {x: 5, y: 5},
-        {x: 10, y: 2},
-        {x: 4, y: ultimaFila},
-        {x: ultimaColumna, y: 4},
-        {x: 0, y: 8},
-        {x: ultimaColumna, y: ultimaFila}
-      ];
-      mensaje = "Seis pruebas: (5,5), (10,2), borde inferior, derecho, izquierdo y esquina inferior derecha.";
-      break;
-    case "horizontal":
-      partes = [{x: 2, y: 0}, {x: 1, y: 0}, {x: 0, y: 0}];
-      mensaje = "Ejercicio 1: serpiente horizontal de tres cuadros.";
-      break;
-    case "izquierda":
-      partes = [{x: 0, y: 4}, {x: 0, y: 5}, {x: 0, y: 6}, {x: 0, y: 7}, {x: 0, y: 8}];
-      mensaje = "Ejercicio 3: cinco cuadros subiendo junto al borde izquierdo. Cabeza arriba.";
-      break;
-    case "ele":
-    case "final":
-      // Misma forma que el PDF: tres cuadros horizontales y uno abajo a la derecha.
-      partes = [{x: 10, y: 10}, {x: 10, y: 9}, {x: 9, y: 9}, {x: 8, y: 9}];
-      mensaje = "Ejercicio final: forma de L. Cabeza amarilla y cuerpo rojo.";
-      break;
-    default:
+
+// unshift agrega una nueva cabeza; pop retira la cola.
+// Se devuelve la posición retirada para recuperarla al comer.
+function moverDerecha() {
+  const cabeza = serpiente[0];
+  serpiente.unshift({x: cabeza.x + 1, y: cabeza.y});
+  return serpiente.pop();
+}
+
+function moverIzquierda() {
+  const cabeza = serpiente[0];
+  serpiente.unshift({x: cabeza.x - 1, y: cabeza.y});
+  return serpiente.pop();
+}
+
+function moverArriba() {
+  const cabeza = serpiente[0];
+  serpiente.unshift({x: cabeza.x, y: cabeza.y - 1});
+  return serpiente.pop();
+}
+
+function moverAbajo() {
+  const cabeza = serpiente[0];
+  serpiente.unshift({x: cabeza.x, y: cabeza.y + 1});
+  return serpiente.pop();
+}
+
+function cambiarDireccion(direccion) {
+  const opuestas = {derecha: "izquierda", izquierda: "derecha",
+    arriba: "abajo", abajo: "arriba"};
+  if (!opuestas[direccion] || terminado || cambioPendiente) return;
+  // Impide girar hacia el propio cuello y dos giros entre dos ticks.
+  if (serpiente.length > 1 && direccion === opuestas[direccionUltimoMovimiento]) return;
+  if (direccion !== direccionActual) {
+    direccionActual = direccion;
+    cambioPendiente = true;
+  }
+  // Aquí no se mueve el arreglo: el siguiente intervalo aplica la dirección.
+}
+
+function iniciarJuego() {
+  if (intervaloSerpiente !== null || terminado) return;
+  intervaloSerpiente = setInterval(moverSerpiente, TIEMPO_MOVIMIENTO);
+  document.getElementById("estado").textContent = "Jugando";
+  document.getElementById("mensaje").textContent = "Come el cuadrado azul. Usa las flechas o los botones.";
+}
+
+function pausarJuego() {
+  if (intervaloSerpiente !== null) {
+    clearInterval(intervaloSerpiente);
+    intervaloSerpiente = null;
+  }
+  if (!terminado) {
+    document.getElementById("estado").textContent = "Pausa";
+    document.getElementById("mensaje").textContent = "Pulsa Iniciar para continuar.";
+  }
+}
+
+function terminarJuego(mensaje) {
+  pausarJuego();
+  terminado = true;
+  document.getElementById("estado").textContent = "Finalizado";
+  document.getElementById("mensaje").textContent = mensaje + " Pulsa Reiniciar.";
+}
+
+function pintarComida() {
+  // Se genera solo si no existe: repintar no cambia su ubicación.
+  // Los índices válidos van de 0 a columnas-1 y de 0 a filas-1.
+  if (comida === null) {
+    const columnas = Math.floor(canvas.width / TAMANIO_CELDA);
+    const filas = Math.floor(canvas.height / TAMANIO_CELDA);
+    const libres = [];
+    for (let y = 0; y < filas; y++) {
+      for (let x = 0; x < columnas; x++) {
+        if (!serpiente.some(parte => parte.x === x && parte.y === y)) {
+          libres.push({x, y});
+        }
+      }
+    }
+    if (libres.length === 0) {
+      terminarJuego("¡Ganaste! Llenaste todo el tablero.");
       return;
+    }
+    comida = libres[Math.floor(Math.random() * libres.length)];
   }
-  // Conservamos el arreglo const: se modifica su contenido.
-  serpiente.length = 0;
-  for (let i = 0; i < partes.length; i++) {
-    serpiente.push(partes[i]);
+  colorParte = COLOR_COMIDA;
+  pintarParte(comida.x, comida.y);
+}
+
+function atrapaComida() {
+  return comida !== null && serpiente[0].x === comida.x &&
+    serpiente[0].y === comida.y;
+}
+
+function moverSerpiente() {
+  if (terminado) return;
+  const cabeza = serpiente[0];
+  const pasos = {derecha: {x: 1, y: 0}, izquierda: {x: -1, y: 0},
+    arriba: {x: 0, y: -1}, abajo: {x: 0, y: 1}};
+  const paso = pasos[direccionActual];
+  const siguiente = {x: cabeza.x + paso.x, y: cabeza.y + paso.y};
+  const columnas = Math.floor(canvas.width / TAMANIO_CELDA);
+  const filas = Math.floor(canvas.height / TAMANIO_CELDA);
+  if (siguiente.x < 0 || siguiente.y < 0 || siguiente.x >= columnas || siguiente.y >= filas) {
+    terminarJuego("La serpiente chocó con el borde.");
+    return;
   }
-  document.getElementById("ejercicio").value = ejercicio;
-  document.getElementById("cantidadPartes").textContent = serpiente.length;
-  document.getElementById("mensaje").textContent = mensaje;
+  const comera = comida !== null && siguiente.x === comida.x && siguiente.y === comida.y;
+  // Si no crece, la celda de la cola se libera en este movimiento.
+  const cuerpo = comera ? serpiente : serpiente.slice(0, -1);
+  if (cuerpo.some(parte => parte.x === siguiente.x && parte.y === siguiente.y)) {
+    terminarJuego("La serpiente chocó con su cuerpo.");
+    return;
+  }
+  let colaAnterior;
+  switch (direccionActual) {
+    case "derecha": colaAnterior = moverDerecha(); break;
+    case "izquierda": colaAnterior = moverIzquierda(); break;
+    case "arriba": colaAnterior = moverArriba(); break;
+    case "abajo": colaAnterior = moverAbajo(); break;
+  }
+  direccionUltimoMovimiento = direccionActual;
+  cambioPendiente = false;
+  if (atrapaComida()) {
+    puntaje++;
+    // Recuperar la cola anterior mantiene continuidad incluso en una curva.
+    serpiente.push(colaAnterior);
+    comida = null;
+  }
+  actualizarMarcador();
   dibujarTodo();
 }
+
+function actualizarMarcador() {
+  document.getElementById("puntaje").textContent = puntaje;
+  document.getElementById("cantidadPartes").textContent = serpiente.length;
+}
+
+function reiniciarJuego() {
+  pausarJuego();
+  terminado = false;
+  puntaje = 0;
+  direccionActual = "derecha";
+  direccionUltimoMovimiento = "derecha";
+  cambioPendiente = false;
+  comida = null;
+  serpiente.length = 0;
+  const x = Math.floor(canvas.width / TAMANIO_CELDA / 2);
+  const y = Math.floor(canvas.height / TAMANIO_CELDA / 2);
+  serpiente.push({x, y}, {x: x - 1, y}, {x: x - 2, y});
+  actualizarMarcador();
+  document.getElementById("estado").textContent = "Listo";
+  document.getElementById("mensaje").textContent = "Cabeza amarilla, cuerpo rojo y comida azul. Pulsa Iniciar.";
+  dibujarTodo();
+}
+
+document.addEventListener("keydown", function(evento) {
+  const direcciones = {ArrowUp: "arriba", ArrowDown: "abajo",
+    ArrowLeft: "izquierda", ArrowRight: "derecha"};
+  if (direcciones[evento.key]) {
+    evento.preventDefault();
+    cambiarDireccion(direcciones[evento.key]);
+  } else if (evento.code === "Space") {
+    evento.preventDefault();
+    if (intervaloSerpiente === null) iniciarJuego(); else pausarJuego();
+  }
+});
+
+reiniciarJuego();

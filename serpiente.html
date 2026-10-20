@@ -10,12 +10,13 @@
   <main class="contenedor-juego">
     <h1>🐍 Juego de la Serpiente</h1>
     <p class="descripcion">
-      Coordenadas y arreglos: dibuja cada parte y distingue la cabeza de la serpiente.
+      ¡Atrapa la comida azul, crece y suma puntos! Muévete con las flechas o los botones.
     </p>
 
     <section class="panel-info">
+      <div class="tarjeta-info"><span>Puntaje</span><strong id="puntaje">0</strong></div>
       <div class="tarjeta-info">
-        <span>Cuadros</span>
+        <span>Longitud</span>
         <strong id="cantidadPartes">0</strong>
       </div>
       <div class="tarjeta-info">
@@ -26,37 +27,27 @@
 
     <canvas id="canvasJuego" width="600" height="600" aria-label="Tablero de 600 por 600 píxeles, con 24 filas y 24 columnas">Su navegador no admite canvas.</canvas>
 
-    <section class="ejercicios">
-      <label for="ejercicio">Visualizar ejercicio:</label>
-      <select id="ejercicio" onchange="seleccionarEjercicio(this.value)">
-        <option value="final">Entrega final: cabeza diferente</option>
-        <option value="pruebas">Seis cuadrados obligatorios</option>
-        <option value="horizontal">Ejercicio 1: horizontal</option>
-        <option value="ele">Ejercicio 2: forma de L</option>
-        <option value="izquierda">Ejercicio 3: borde izquierdo</option>
-      </select>
-      <p>Cabeza amarilla · cuerpo rojo · celdas de 25 px</p>
-    </section>
+    <p class="leyenda">Cabeza amarilla · cuerpo rojo · comida azul</p>
     <section class="controles">
       <button class="vacio">-</button>
-      <button disabled title="Disponible en una siguiente parte del taller">⬆️</button>
+      <button onclick="cambiarDireccion('arriba')" aria-label="Arriba">⬆️</button>
       <button class="vacio">-</button>
 
-      <button disabled title="Disponible en una siguiente parte del taller">⬅️</button>
-      <button disabled title="Disponible en una siguiente parte del taller">⏸️</button>
-      <button disabled title="Disponible en una siguiente parte del taller">➡️</button>
+      <button onclick="cambiarDireccion('izquierda')" aria-label="Izquierda">⬅️</button>
+      <button onclick="pausarJuego()" aria-label="Pausar">⏸️</button>
+      <button onclick="cambiarDireccion('derecha')" aria-label="Derecha">➡️</button>
 
       <button class="vacio">-</button>
-      <button disabled title="Disponible en una siguiente parte del taller">⬇️</button>
+      <button onclick="cambiarDireccion('abajo')" aria-label="Abajo">⬇️</button>
       <button class="vacio">-</button>
     </section>
 
     <section class="acciones">
-      <button disabled title="Disponible en una siguiente parte del taller">Iniciar</button>
-      <button class="secundario" disabled title="Disponible en una siguiente parte del taller">Reiniciar</button>
+      <button onclick="iniciarJuego()">Iniciar</button>
+      <button class="secundario" onclick="reiniciarJuego()">Reiniciar</button>
     </section>
 
-    <p id="mensaje" class="mensaje">Taller: tablero de 600 × 600 px · celdas de 25 px · 24 filas y 24 columnas.</p>
+    <p id="mensaje" class="mensaje" role="status" aria-live="polite">Taller: tablero de 600 × 600 px · celdas de 25 px · 24 filas y 24 columnas.</p>
   </main>
 
   <script src="serpiente.js"></script>

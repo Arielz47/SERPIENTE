@@ -147,3 +147,5 @@ canvas { height: auto; }
 .ejercicios label { display: block; margin-bottom: 8px; font-weight: bold; }
 .ejercicios select { padding: 12px; width: 100%; max-width: 420px; border: 1px solid #5eead4; border-radius: 8px; background: #123b40; color: white; font-size: 16px; }
 .ejercicios p { margin-top: 10px; color: #cbd5e1; }
+
+.leyenda{color:#cbd5e1;margin:0 0 18px;line-height:1.5}
