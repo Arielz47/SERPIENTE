@@ -10,7 +10,7 @@
   <main class="contenedor-juego">
     <h1>🐍 Juego de la Serpiente</h1>
     <p class="descripcion">
-      ¡Atrapa la comida azul, crece y suma puntos! Muévete con las flechas o los botones.
+      ¡Come, crece y sube de nivel! Cada cinco puntos aumenta la velocidad.
     </p>
 
     <section class="panel-info">
@@ -23,7 +23,10 @@
         <span>Estado</span>
         <strong id="estado">Parte 2</strong>
       </div>
+      <div class="tarjeta-info"><span>Nivel</span><strong id="nivel">1</strong></div>
+      <div class="tarjeta-info"><span>Intervalo</span><strong id="velocidad">300 ms</strong></div>
     </section>
+    <div id="avisoFinal" class="aviso-final" role="alert" hidden></div>
 
     <canvas id="canvasJuego" width="600" height="600" aria-label="Tablero de 600 por 600 píxeles, con 24 filas y 24 columnas">Su navegador no admite canvas.</canvas>
 
@@ -44,7 +47,7 @@
 
     <section class="acciones">
       <button onclick="iniciarJuego()">Iniciar</button>
-      <button class="secundario" onclick="reiniciarJuego()">Reiniciar</button>
+      <button class="secundario" onclick="reiniciarJuego()">Reiniciar juego</button>
     </section>
 
     <p id="mensaje" class="mensaje" role="status" aria-live="polite">Taller: tablero de 600 × 600 px · celdas de 25 px · 24 filas y 24 columnas.</p>

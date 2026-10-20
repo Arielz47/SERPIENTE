@@ -149,3 +149,8 @@ canvas { height: auto; }
 .ejercicios p { margin-top: 10px; color: #cbd5e1; }
 
 .leyenda{color:#cbd5e1;margin:0 0 18px;line-height:1.5}
+
+.aviso-final { padding: 18px; margin-bottom: 16px; border: 2px solid #fb7185;
+  background: #4c1727; color: #ffe4e6; font-size: 22px; font-weight: bold;
+  border-radius: 12px; }
+.aviso-final[hidden] { display: none; }

@@ -13,7 +13,8 @@ let cambioPendiente = false;
 let comida = null;
 let puntaje = 0;
 let terminado = false;
-const TIEMPO_MOVIMIENTO = 1000;
+let velocidad = 300;
+let nivel = 1;
 
 function limpiarCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -105,7 +106,7 @@ function cambiarDireccion(direccion) {
 
 function iniciarJuego() {
   if (intervaloSerpiente !== null || terminado) return;
-  intervaloSerpiente = setInterval(moverSerpiente, TIEMPO_MOVIMIENTO);
+  intervaloSerpiente = setInterval(moverSerpiente, velocidad);
   document.getElementById("estado").textContent = "Jugando";
   document.getElementById("mensaje").textContent = "Come el cuadrado azul. Usa las flechas o los botones.";
 }
@@ -124,7 +125,10 @@ function pausarJuego() {
 function terminarJuego(mensaje) {
   pausarJuego();
   terminado = true;
-  document.getElementById("estado").textContent = "Finalizado";
+  document.getElementById("estado").textContent = "GAME OVER";
+  const aviso = document.getElementById("avisoFinal");
+  aviso.hidden = false;
+  aviso.textContent = mensaje.startsWith("¡Ganaste") ? mensaje : "GAME OVER · " + mensaje;
   document.getElementById("mensaje").textContent = mensaje + " Pulsa Reiniciar.";
 }
 
@@ -188,6 +192,7 @@ function moverSerpiente() {
   cambioPendiente = false;
   if (atrapaComida()) {
     puntaje++;
+    actualizarNivel();
     // Recuperar la cola anterior mantiene continuidad incluso en una curva.
     serpiente.push(colaAnterior);
     comida = null;
@@ -196,15 +201,37 @@ function moverSerpiente() {
   dibujarTodo();
 }
 
+// Mejora adicional: cada cinco puntos aumenta el nivel.
+// Menos milisegundos entre movimientos significa mayor rapidez.
+function actualizarNivel() {
+  const nuevoNivel = 1 + Math.floor(puntaje / 5);
+  const nuevaVelocidad = Math.max(100, 300 - (nuevoNivel - 1) * 25);
+  nivel = nuevoNivel;
+  if (nuevaVelocidad !== velocidad) {
+    velocidad = nuevaVelocidad;
+    // Sustituir el intervalo aplica la nueva velocidad sin duplicarlo.
+    if (intervaloSerpiente !== null) {
+      clearInterval(intervaloSerpiente);
+      intervaloSerpiente = setInterval(moverSerpiente, velocidad);
+    }
+  }
+}
+
 function actualizarMarcador() {
   document.getElementById("puntaje").textContent = puntaje;
   document.getElementById("cantidadPartes").textContent = serpiente.length;
+  document.getElementById("nivel").textContent = nivel;
+  document.getElementById("velocidad").textContent = velocidad + " ms";
 }
 
 function reiniciarJuego() {
   pausarJuego();
   terminado = false;
   puntaje = 0;
+  nivel = 1;
+  velocidad = 300;
+  document.getElementById("avisoFinal").hidden = true;
+  document.getElementById("avisoFinal").textContent = "";
   direccionActual = "derecha";
   direccionUltimoMovimiento = "derecha";
   cambioPendiente = false;
