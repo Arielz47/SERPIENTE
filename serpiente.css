@@ -142,3 +142,8 @@ canvas {
 }
 button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 canvas { height: auto; }
+
+.ejercicios { margin: 12px 0 20px; }
+.ejercicios label { display: block; margin-bottom: 8px; font-weight: bold; }
+.ejercicios select { padding: 12px; width: 100%; max-width: 420px; border: 1px solid #5eead4; border-radius: 8px; background: #123b40; color: white; font-size: 16px; }
+.ejercicios p { margin-top: 10px; color: #cbd5e1; }
